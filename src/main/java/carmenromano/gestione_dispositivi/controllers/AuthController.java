@@ -23,6 +23,7 @@ public class AuthController {
     @Autowired
     private EmployeeService employeeService;
 
+    //2 creiamo una richiesta POST per effettuare il login
     @PostMapping("/login")
     public EmployeeResonseLoginPayload login(@RequestBody EmployeeLoginPayload payload){
         return new EmployeeResonseLoginPayload(authService.authenticateAndGenerateToken(payload));

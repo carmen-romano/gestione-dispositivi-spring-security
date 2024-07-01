@@ -10,7 +10,7 @@ import org.springframework.stereotype.Component;
 import java.util.Date;
 
 @Component
-public class JWTTools {
+public class JWTTools {///3
 
     @Value("${jwt.secret}")
     private String secret;
