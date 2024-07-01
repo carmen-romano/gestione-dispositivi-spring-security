@@ -33,17 +33,6 @@ public class EmployeeController {
     }
 
 
-    @PostMapping("")
-    @ResponseStatus(HttpStatus.CREATED) // <-- 201
-    public EmployeePayloadResponse saveEmployee(@RequestBody @Validated EmployeePayload body, BindingResult validation) throws IOException {
-
-        if (validation.hasErrors()) {
-            throw new BadRequestException(validation.getAllErrors());
-        }
-        return new EmployeePayloadResponse(this.employeeService.save(body).getId());
-    }
-
-
     @PutMapping("/{employeeId}")
     public Employee findAndUpdate(@PathVariable int employeeId, @RequestBody Employee body) {
         return this.employeeService.findByIdAndUpdate(employeeId, body);

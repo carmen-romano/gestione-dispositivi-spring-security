@@ -74,4 +74,7 @@ public class EmployeeService {
         found.setAvatar(avatarURL);
         return employeeRepository.save(found);
     }
+    public Employee findByEmail(String email){
+        return employeeRepository.findByEmail(email).orElseThrow(() -> new NotFoundException("Employee with email " + email + " not found!"));
+    }
 }
