@@ -1,12 +1,17 @@
 package carmenromano.gestione_dispositivi.security;
 
+import carmenromano.gestione_dispositivi.entities.Employee;
 import carmenromano.gestione_dispositivi.exceptions.UnauthorizedException;
+import carmenromano.gestione_dispositivi.services.EmployeeService;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.UnavailableException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Component;
 import org.springframework.util.AntPathMatcher;
 import org.springframework.web.filter.OncePerRequestFilter;
@@ -17,6 +22,8 @@ import java.io.IOException;
 public class JWTAuthFilter extends OncePerRequestFilter {
     @Autowired
     private JWTTools jwtTools;
+    @Autowired
+    private EmployeeService employeeService;
 
     @Override
     protected void doFilterInternal(HttpServletRequest request, HttpServletResponse response, FilterChain filterChain) throws ServletException, IOException {
@@ -28,6 +35,12 @@ public class JWTAuthFilter extends OncePerRequestFilter {
         String accessToken = authorizationHeader.substring(7);
         //Poi verifichiamo la validità
         jwtTools.verifyToken(accessToken);
+
+        String employeeId = jwtTools.extractIdFromToken(accessToken);
+        Employee employee = employeeService.findById(Integer.parseInt(employeeId));
+
+        Authentication authentication = new UsernamePasswordAuthenticationToken(employee, null, employee.getAuthorities());
+        SecurityContextHolder.getContext().setAuthentication(authentication);
 
         // Andiamo al prossimo elemento nella catena di filtri
         filterChain.doFilter(request, response);

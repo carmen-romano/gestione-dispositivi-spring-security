@@ -8,6 +8,8 @@ import carmenromano.gestione_dispositivi.services.EmployeeService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
@@ -34,21 +36,48 @@ public class EmployeeController {
 
 
     @PutMapping("/{employeeId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Employee findAndUpdate(@PathVariable int employeeId, @RequestBody Employee body) {
         return this.employeeService.findByIdAndUpdate(employeeId, body);
     }
 
 
-
     @DeleteMapping("/{employeeId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void findByIdAndDelete(@PathVariable int employeeId) {
         this.employeeService.findByIdAndDelete(employeeId);
     }
 
     @PostMapping("/{employeeId}/avatar")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Employee uploadAvatar(@RequestParam("avatar") MultipartFile image, @PathVariable int employeeId) throws IOException {
         return this.employeeService.uploadAvatar(employeeId, image);
+    }
+
+
+
+    // /me
+
+    @PostMapping("/me/avatar")
+    public Employee uploadAvatarMe(@RequestParam("avatar") MultipartFile image, @AuthenticationPrincipal Employee currentAuthenticatedUser) throws IOException {
+        return this.employeeService.uploadAvatar(currentAuthenticatedUser.getId(), image);
+    }
+
+
+    @GetMapping("/me")
+    public Employee getProfile(@AuthenticationPrincipal Employee currentAuthenticatedUser){
+        return currentAuthenticatedUser;
+    }
+
+    @DeleteMapping("/me")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
+    public void deleteProfile(@AuthenticationPrincipal Employee currentAuthenticatedUser){
+        this.employeeService.findByIdAndDelete(Math.toIntExact(currentAuthenticatedUser.getId()));
+    }
+    @PutMapping("/me")
+    public Employee findAndUpdate(@AuthenticationPrincipal Employee currentAuthenticatedUser, @RequestBody Employee body) {
+        return this.employeeService.findByIdAndUpdate(currentAuthenticatedUser.getId(), body);
     }
 
 }

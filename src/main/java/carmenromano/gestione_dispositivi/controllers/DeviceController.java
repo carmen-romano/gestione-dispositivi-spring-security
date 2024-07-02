@@ -10,6 +10,7 @@ import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
@@ -33,6 +34,7 @@ public class DeviceController {
     }
 
     @PostMapping("")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public Device saveDevice(@RequestBody @Valid DevicePayload body, BindingResult validation) throws IOException {
         if (validation.hasErrors()) {
@@ -42,17 +44,20 @@ public class DeviceController {
     }
 
     @PutMapping("/{deviceId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     public Device findByIdAndUpdate(@PathVariable int deviceId, @RequestBody Device body) {
         return deviceService.findByIdAndUpdate(deviceId, body);
     }
 
     @DeleteMapping("/{deviceId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void findByIdAndDelete(@PathVariable int deviceId) {
         deviceService.findByIdAndDelete(deviceId);
     }
 
     @PostMapping("/assign/{deviceId}")
+    @PreAuthorize("hasAuthority('ADMIN')")
     @ResponseStatus(HttpStatus.CREATED)
     public Device assignDeviceToEmployee(
             @PathVariable int deviceId,

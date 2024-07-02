@@ -1,6 +1,7 @@
 package carmenromano.gestione_dispositivi.services;
 
 import carmenromano.gestione_dispositivi.entities.Employee;
+import carmenromano.gestione_dispositivi.enums.RoleType;
 import carmenromano.gestione_dispositivi.exceptions.BadRequestException;
 import carmenromano.gestione_dispositivi.exceptions.NotFoundException;
 import carmenromano.gestione_dispositivi.payloads.EmployeePayload;
@@ -12,6 +13,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -25,6 +27,10 @@ public class EmployeeService {
     @Autowired
     private EmployeeRepository employeeRepository;
 
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+
 
     public Employee save(EmployeePayload body) throws IOException {
         employeeRepository.findByEmail(body.email()).ifPresent(user -> {
@@ -36,7 +42,8 @@ public class EmployeeService {
         employee.setLastname(body.lastName());
         employee.setUsername(body.username());
         employee.setEmail(body.email());
-        employee.setPassword(body.password());
+        employee.setRoleType(RoleType.USER);
+        employee.setPassword(passwordEncoder.encode(body.password()));
 
         return employeeRepository.save(employee);
     }
